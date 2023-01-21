@@ -1,0 +1,5 @@
+1. π name instructor ∪ π name student 
+2. π course.course_id, course.title, teaches.ID ( course ⨝ teaches.course_id = course.course_id teaches )
+3. π ID, name, salary σ salary < 75000 instructor
+4. π dept_name, cnt γ dept_name; COUNT(*)→cnt instructor 
+5. π title, course.course_id, prereq.prereq_id σ course.course_id = prereq.course_id ( prereq ⨯ course )
