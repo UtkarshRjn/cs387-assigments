@@ -1,10 +1,117 @@
 import argparse, psycopg2, sys
 from psycopg2.extras import execute_values
 import csv
+def topological_sort(graph,all_table):
+    in_degree = {u: 0 for u in all_table}
+    for u in graph:
+        for v in graph[u]:
+            in_degree[v] += 1
+    queue = [u for u in all_table if in_degree[u] == 0]
+    sorted_list = []
+    while queue:
+        u = queue.pop(0)
+        sorted_list.append(u)
+        if u not in graph: continue
+        for v in graph[u]:
+            in_degree[v] -= 1
+            if in_degree[v] == 0:
+                queue.append(v)
+    if len(sorted_list) != len(all_table):
+        print("LENGTH ERROR")
+        return None
+    return sorted_list
 
-edges = None
-toposort = None
-visited = None
+def show_table(table,cursor):
+        cursor.execute("""
+            SELECT column_name, data_type, character_maximum_length
+            FROM information_schema.columns
+            WHERE table_name='{}'
+            ORDER BY ordinal_position
+        """.format(table))
+        columns = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT kcu.column_name
+            FROM information_schema.table_constraints tc
+            JOIN information_schema.key_column_usage kcu
+                ON tc.constraint_name = kcu.constraint_name
+                AND tc.table_schema = kcu.table_schema
+                AND tc.table_name = kcu.table_name
+            WHERE tc.constraint_type = 'PRIMARY KEY'
+            AND tc.table_name='{}'
+            ORDER BY 1
+        """.format(table))
+        primary_keys = [key[0] for key in cursor.fetchall()]
+
+        cursor.execute("""
+            SELECT kcu.column_name,
+               ccu.table_name AS foreign_table_name,
+               ccu.column_name AS foreign_column_name,
+               tc.constraint_name,
+               rc.delete_rule
+            FROM information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+            ON tc.constraint_name = kcu.constraint_name
+            JOIN information_schema.constraint_column_usage AS ccu
+            ON ccu.constraint_name = tc.constraint_name
+            JOIN information_schema.referential_constraints rc
+            ON rc.constraint_name = tc.constraint_name
+            WHERE tc.constraint_type = 'FOREIGN KEY'
+            AND tc.table_name='{}'
+            ORDER BY 1
+        """.format(table))
+        foreign_keys = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT column_name, constraint_name
+            FROM information_schema.constraint_column_usage
+            WHERE constraint_name IN (
+                SELECT constraint_name
+                FROM information_schema.table_constraints
+                WHERE constraint_type='UNIQUE'
+                AND table_name='{}'
+            )
+            ORDER BY 1
+        """.format(table))
+        unique_constraints = cursor.fetchall()
+
+        f = sys.stdout
+        f.write("CREATE TABLE " + table + " (\n")
+
+        for c in columns:
+            f.write(f"{c[0]} {c[1]},\n")
+
+        f.write("PRIMARY KEY (" + ', '.join(primary_keys) + ")")
+
+        if len(foreign_keys) != 0:
+            f.write(",\n")
+        else:
+            f.write("\n")
+
+        for i,fk in enumerate(foreign_keys):
+            column_name = fk[0]
+            foreign_table_name = fk[1]
+            foreign_column_name = fk[2]
+            constraint_name = fk[3]
+            delete_rule = fk[4]
+
+            if i!=len(foreign_keys)-1:
+                f.write(f"FOREIGN KEY ({column_name}) references {foreign_table_name}({foreign_column_name}) ON DELETE {delete_rule},\n")
+            else:
+                f.write(f"FOREIGN KEY ({column_name}) references {foreign_table_name}({foreign_column_name}) ON DELETE {delete_rule}")
+
+        if len(unique_constraints) != 0:
+            f.write(",\n")
+        else:
+            f.write("\n")
+
+        for i,uc in enumerate(unique_constraints):
+            if i!= len(unique_constraints)-1:
+                f.write(f"UNIQUE (" + ', '.join(uc[0]) + "),\n")
+            else:
+                f.write(f"UNIQUE (" + ', '.join(uc[0]) + ")\n")
+
+        f.write(");\n")
 
 def main(args):
     connection = psycopg2.connect(host = args.host, port = args.port, database = args.name, user = args.user, password = args.pswd)
@@ -53,104 +160,46 @@ def main(args):
             print(names)
 
     if(args.show_table_schema):
-
-        cursor.execute("""
-            SELECT column_name, data_type, character_maximum_length
-            FROM information_schema.columns
-            WHERE table_name='{}'
-            ORDER BY ordinal_position
-        """.format(args.table))
-        columns = cursor.fetchall()
-
-        cursor.execute("""
-            SELECT kcu.column_name
-            FROM information_schema.table_constraints tc
-            JOIN information_schema.key_column_usage kcu
-                ON tc.constraint_name = kcu.constraint_name
-                AND tc.table_schema = kcu.table_schema
-                AND tc.table_name = kcu.table_name
-            WHERE tc.constraint_type = 'PRIMARY KEY'
-            AND tc.table_name='{}'
-            ORDER BY 1
-        """.format(args.table))
-        primary_keys = [key[0] for key in cursor.fetchall()]
-
-        cursor.execute("""
-            SELECT kcu.column_name,
-               ccu.table_name AS foreign_table_name,
-               ccu.column_name AS foreign_column_name,
-               tc.constraint_name,
-               rc.delete_rule
-            FROM information_schema.table_constraints AS tc
-            JOIN information_schema.key_column_usage AS kcu
-            ON tc.constraint_name = kcu.constraint_name
-            JOIN information_schema.constraint_column_usage AS ccu
-            ON ccu.constraint_name = tc.constraint_name
-            JOIN information_schema.referential_constraints rc
-            ON rc.constraint_name = tc.constraint_name
-            WHERE tc.constraint_type = 'FOREIGN KEY'
-            AND tc.table_name='{}'
-            ORDER BY 1
-        """.format(args.table))
-        foreign_keys = cursor.fetchall()
-
-        cursor.execute("""
-            SELECT column_name, constraint_name
-            FROM information_schema.constraint_column_usage
-            WHERE constraint_name IN (
-                SELECT constraint_name
-                FROM information_schema.table_constraints
-                WHERE constraint_type='UNIQUE'
-                AND table_name='{}'
-            )
-            ORDER BY 1
-        """.format(args.table))
-        unique_constraints = cursor.fetchall()
-
-        f = sys.stdout
-        f.write("CREATE TABLE " + args.table + " (\n")
-
-        for c in columns:
-            f.write(f"{c[0]} {c[1]},\n")
-
-        f.write("PRIMARY KEY (" + ', '.join(primary_keys) + ")")
-
-        if len(foreign_keys) != 0:
-            f.write(",\n")
-        else:
-            f.write("\n")
-
-        for i,fk in enumerate(foreign_keys):
-            column_name = fk[0]
-            foreign_table_name = fk[1]
-            foreign_column_name = fk[2]
-            constraint_name = fk[3]
-            delete_rule = fk[4]
-
-            if i!=len(foreign_keys)-1:
-                f.write(f"FOREIGN KEY ({column_name}) references {foreign_table_name}({foreign_column_name}) ON DELETE {delete_rule},\n")
-            else:
-                f.write(f"FOREIGN KEY ({column_name}) references {foreign_table_name}({foreign_column_name}) ON DELETE {delete_rule}")
-
-        if len(unique_constraints) != 0:
-            f.write(",\n")
-        else:
-            f.write("\n")
-
-        for i,uc in enumerate(unique_constraints):
-            if i!= len(unique_constraints)-1:
-                f.write(f"UNIQUE (" + ', '.join(uc[0]) + "),\n")
-            else:
-                f.write(f"UNIQUE (" + ', '.join(uc[0]) + ")\n")
-
-        f.write(");\n")
-
+        show_table(args.table,cursor)
+        
 
     if(args.import_sql):
-        pass
+        with open(args.file_path, "r") as file:
+            sql_statements = file.read()
+        cursor.execute(sql_statements)
+        connection.commit()
+	    
+        
+
 
     if(args.export_database_schema):
-        pass
+        cursor.execute("""
+            SELECT DISTINCT ccu.table_name, tc.table_name
+            FROM information_schema.table_constraints AS tc
+            CROSS JOIN information_schema.constraint_column_usage AS ccu 
+            WHERE tc.constraint_type = 'FOREIGN KEY'
+            AND tc.constraint_name=ccu.constraint_name
+        """)
+        table_order = cursor.fetchall()
+        cursor.execute("""
+            SELECT tablename FROM pg_catalog.pg_tables
+            WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'
+            ORDER BY tablename;
+        """)
+        table_names = [table[0] for table in cursor.fetchall()]
+        graph = {}
+        for row in table_order:
+            node1 = row[0]
+            node2 = row[1] 
+            if node1 not in graph:
+                graph[node1] = []
+            if node2 not in graph[node1]:
+                graph[node1].append(node2)
+        sorted=topological_sort(graph,table_names)
+        for table_names in sorted:
+            show_table(table_names,cursor)
+            
+
     
     if(args.testing):
         cursor.execute("DROP TABLE IF EXISTS test;")
