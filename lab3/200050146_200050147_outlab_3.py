@@ -1,6 +1,7 @@
 import argparse, psycopg2, sys
 from psycopg2.extras import execute_values
 import csv
+
 def topological_sort(graph,all_table):
     in_degree = {u: 0 for u in all_table}
     for u in graph:
@@ -21,7 +22,7 @@ def topological_sort(graph,all_table):
         return None
     return sorted_list
 
-def show_table(table,cursor):
+def show_table(table, cursor):
         cursor.execute("""
             SELECT column_name, data_type, character_maximum_length
             FROM information_schema.columns
@@ -43,36 +44,10 @@ def show_table(table,cursor):
         """.format(table))
         primary_keys = [key[0] for key in cursor.fetchall()]
 
-        cursor.execute("""
-            SELECT kcu.column_name,
-               ccu.table_name AS foreign_table_name,
-               ccu.column_name AS foreign_column_name,
-               tc.constraint_name,
-               rc.delete_rule
-            FROM information_schema.table_constraints AS tc
-            JOIN information_schema.key_column_usage AS kcu
-            ON tc.constraint_name = kcu.constraint_name
-            JOIN information_schema.constraint_column_usage AS ccu
-            ON ccu.constraint_name = tc.constraint_name
-            JOIN information_schema.referential_constraints rc
-            ON rc.constraint_name = tc.constraint_name
-            WHERE tc.constraint_type = 'FOREIGN KEY'
-            AND tc.table_name='{}'
-            ORDER BY 1
-        """.format(table))
+        cursor.execute(f"SELECT pg_catalog.pg_get_constraintdef(r.oid, true) as condef FROM pg_catalog.pg_constraint r WHERE r.conrelid = '{table}'::regclass AND r.contype = 'f' ORDER BY 1")
         foreign_keys = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT column_name, constraint_name
-            FROM information_schema.constraint_column_usage
-            WHERE constraint_name IN (
-                SELECT constraint_name
-                FROM information_schema.table_constraints
-                WHERE constraint_type='UNIQUE'
-                AND table_name='{}'
-            )
-            ORDER BY 1
-        """.format(table))
+        cursor.execute(f"SELECT pg_catalog.pg_get_constraintdef(r.oid, true) as condef FROM pg_catalog.pg_constraint r WHERE r.conrelid = '{table}'::regclass AND r.contype = 'u' ORDER BY 1")
         unique_constraints = cursor.fetchall()
 
         f = sys.stdout
@@ -84,34 +59,15 @@ def show_table(table,cursor):
         f.write("PRIMARY KEY (" + ', '.join(primary_keys) + ")")
 
         if len(foreign_keys) != 0:
-            f.write(",\n")
-        else:
-            f.write("\n")
+            for i,fk in enumerate(foreign_keys):
+                f.write(f",\n{fk[0]}")
 
-        for i,fk in enumerate(foreign_keys):
-            column_name = fk[0]
-            foreign_table_name = fk[1]
-            foreign_column_name = fk[2]
-            constraint_name = fk[3]
-            delete_rule = fk[4]
-
-            if i!=len(foreign_keys)-1:
-                f.write(f"FOREIGN KEY ({column_name}) references {foreign_table_name}({foreign_column_name}) ON DELETE {delete_rule},\n")
-            else:
-                f.write(f"FOREIGN KEY ({column_name}) references {foreign_table_name}({foreign_column_name}) ON DELETE {delete_rule}")
-
+        
         if len(unique_constraints) != 0:
-            f.write(",\n")
-        else:
-            f.write("\n")
+            for i,uc in enumerate(unique_constraints):
+                uc.write(f",\n{uc[0]}")
 
-        for i,uc in enumerate(unique_constraints):
-            if i!= len(unique_constraints)-1:
-                f.write(f"UNIQUE (" + ', '.join(uc[0]) + "),\n")
-            else:
-                f.write(f"UNIQUE (" + ', '.join(uc[0]) + ")\n")
-
-        f.write(");\n")
+        f.write("\n);\n")
 
 def main(args):
     connection = psycopg2.connect(host = args.host, port = args.port, database = args.name, user = args.user, password = args.pswd)
@@ -147,7 +103,6 @@ def main(args):
         else:
             print("Invalid format")
             return
-        connection.commit()
 
     if(args.show_tables):
         cursor.execute("""
@@ -160,17 +115,14 @@ def main(args):
             print(names)
 
     if(args.show_table_schema):
-        show_table(args.table,cursor)
+        show_table(args.table, cursor)
         
 
     if(args.import_sql):
-        with open(args.file_path, "r") as file:
+        with open(args.path, "r") as file:            
             sql_statements = file.read()
         cursor.execute(sql_statements)
         connection.commit()
-	    
-        
-
 
     if(args.export_database_schema):
         cursor.execute("""
