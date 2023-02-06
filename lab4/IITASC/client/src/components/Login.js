@@ -1,6 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/login";
 
 const Login = () => {
+    const navigate = useNavigate();
     const userRef = useRef();
     const errRef = useRef();
 
@@ -21,16 +24,24 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const body = { description };
-            const response = await fetch("http://localhost:5000/lab4/student", {
+            const body = { id, pwd };
+            const response = await fetch(endpoint, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(body)
             });
       
             console.log(response);
-            // window.location = "/";
-          } catch (err) {
+            if (!response.ok) {
+                throw new Error("Login failed.");
+            }
+    
+            const session = await response.json();
+            console.log(session);
+
+            localStorage.setItem("session", JSON.stringify(session));
+            navigate("/home");
+        } catch (err) {
             console.error(err.message);
         }
     }
