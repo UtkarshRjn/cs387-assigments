@@ -12,6 +12,8 @@ const Home = () => {
         body: JSON.stringify(body)
     });
 
+    console.log("response", response)
+
   return (
     <div>
       <h1>Welcome to the Home Page</h1>

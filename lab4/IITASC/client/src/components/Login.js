@@ -31,7 +31,6 @@ const Login = () => {
               body: JSON.stringify(body)
             });
       
-            console.log(response);
             if (!response.ok) {
                 throw new Error("Login failed.");
             }

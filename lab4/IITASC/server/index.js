@@ -51,25 +51,16 @@ app.post("/home", async (req, res) => {
         const student_query = await pool.query("SELECT * FROM student WHERE id = $1", [id]);
         
         const course_query = await pool.query(`
-                                                WITH sem_courses AS (
-                                                    SELECT r.student_id, c.name AS Course, r.semester, r.year
-                                                    FROM registrations r
-                                                    LEFT JOIN courses c ON r.course_id = c.id
-                                                ), sem_sort AS (
-                                                    SELECT student_id, Course, semester, year, 
-                                                        ROW_NUMBER() OVER (PARTITION BY student_id, semester ORDER BY year DESC, semester DESC) AS sem_rn
-                                                    FROM sem_courses
-                                                )
-                                                SELECT Course, semester, year
-                                                FROM sem_sort
-                                                WHERE student_id = $1 AND sem_rn = 1
+                                                SELECT course_id, semester, year
+                                                FROM takes
+                                                WHERE takes.ID = $1
                                                 ORDER BY year DESC, semester DESC;
                                                 `, [id]);
         
-        const current_course = await pool.query(`SELECT c.name AS Course
-                                                 FROM courses c
-                                                 LEFT JOIN registrations r ON c.id = r.course_id
-                                                 WHERE r.student_id = $1 AND r.semester = 'Spring' AND r.year = '2022';                                           
+        const current_course = await pool.query(`SELECT c.course_id, 'Spring' AS semester, '2022' AS year
+                                                 FROM course c
+                                                 LEFT JOIN takes r ON c.course_id = r.course_id
+                                                 WHERE r.ID = $1 AND r.semester = 'Spring' AND r.year = '2022';                                           
                                                  `, [id]);                                        
 
         const data = {
@@ -82,8 +73,9 @@ app.post("/home", async (req, res) => {
         }
 
  
-        console.log(student_query.rows[0]);
-        res.send(data);
+        // console.log(student_query.rows[0]);
+        console.log(data);
+        res.send(JSON.stringify(data));
  
      }catch (err){
          console.error(err.message);
