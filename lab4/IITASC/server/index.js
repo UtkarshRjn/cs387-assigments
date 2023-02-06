@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
-// const cookieParser = require('cookie-parser');
 const store = new session.MemoryStore();
 const app = express();
 const cors = require("cors");
@@ -75,7 +74,7 @@ app.post("/home", async (req, res) => {
  
         // console.log(student_query.rows[0]);
         console.log(data);
-        res.send(JSON.stringify(data));
+        res.send(data);
  
      }catch (err){
          console.error(err.message);
