@@ -7,7 +7,6 @@ const Course = () => {
   const { course_id } = useParams()
   const [ responseData, setResponseData] = useState({});
 
-console.log("course_id: " + course_id)
   useEffect(() => {
 
     const body = { id: course_id };
@@ -21,11 +20,50 @@ console.log("course_id: " + course_id)
     .catch(error => console.error(error));
   }, []);
 
+  // const responseDataArray = Object.values(responseData);
+
   return (
-    <div>
-      <h1>Welcome to the Course {course_id} Page</h1>
-        {JSON.stringify(responseData)}
-    </div>
+    <html>
+      <head>
+            <style>
+
+            </style>
+        </head>
+        <body>
+            <h1>Welcome to the Course { course_id } Page</h1>
+            <table id="course-detail-table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Course Id</td>
+                        <td>{responseData.course_id}</td>
+                    </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>{responseData.title}</td>
+                    </tr>
+                    <tr>
+                        <td>Credits</td>
+                        <td>{responseData.credits}</td>
+                    </tr>
+                    <tr>
+                        <td>Prereq</td>
+                        <td><a href={`/course/${responseData.prereq_id}`}>{responseData.prereq_id}</a></td>
+                    </tr>
+                    <tr>
+                        <td>Instructors</td>
+                        <td><a href={`/instructor/${responseData.instructors}`} >{responseData.instructors ? responseData.instructors.join(', ') : `None` }</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </body>      
+    </html>
   );
 }
 

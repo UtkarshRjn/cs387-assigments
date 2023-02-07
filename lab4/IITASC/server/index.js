@@ -185,7 +185,7 @@ app.post("/running", async (req, res) => {
                                                 WHERE semester='Spring' and year='2009'`);                                      
         
 
-        console.log(dept_query.rows)
+        console.log(dept_query.rows);
         
         res.send(dept_query.rows);
  
