@@ -10,15 +10,15 @@ import Registration from './components/Registration';
 //import { useSelector } from 'react-redux'
 
 
-const PrivateRoutes = () =>{
-  const isAuth = false
-  return <>{isAuth ? <Outlet/> : <Navigate to='/login' />}</>
-}
+// const PrivateRoutes = () =>{
+//   const isAuth = false
+//   return <>{isAuth ? <Outlet/> : <Navigate to='/login' />}</>
+// }
 
-const RestrictedRoutes = () =>{
-  const isAuth = false
-  return <>{!isAuth ? <Outlet/> : <Navigate to='/home' />}</>
-}
+// const RestrictedRoutes = () =>{
+//   const isAuth = false
+//   return <>{!isAuth ? <Outlet/> : <Navigate to='/home' />}</>
+// }
 
 const App = () => {
   return (
@@ -28,13 +28,13 @@ const App = () => {
             <Route path="/course/running" element={<Running />} />      
             <Route path="/course/running/:dept_name" element={<DeptName />} />      
       
-            <Route element={<PrivateRoutes/>}>
+            {/* <Route element={<PrivateRoutes/>}> */}
               <Route path="/home" element={<Home />} /> 
-            </Route>
-            <Route element={<RestrictedRoutes/>}>
-              <Route path="/home/registration" element={<Registration />} />      
+            {/* </Route> */}
+            {/* <Route element={<RestrictedRoutes/>}> */}
+              <Route path="/registration" element={<Registration />} />      
               <Route path="/login" element={<Login />} />      
-            </Route>
+            {/* </Route> */}
       </Routes>
 
   )

@@ -24,15 +24,7 @@ const Running = () => {
     const responseDataArray = Object.values(responseData);
 
   return (
-    <Layout>
-    <html>
-        <head>
-            <style>
-
-            </style>
-        </head>
-        <body>
-            <h1>Welcome to the Running Course Page</h1>
+    <Layout> 
             <table id="running-course-table">
                 <thead>
                     <tr>
@@ -51,8 +43,6 @@ const Running = () => {
                     ))}
                 </tbody>
             </table>
-        </body>
-    </html>
     </Layout>
   );
 }

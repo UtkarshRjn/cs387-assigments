@@ -59,7 +59,7 @@ app.post("/home", async (req, res) => {
         const current_course = await pool.query(`SELECT c.course_id, 'Spring' AS semester, '2010' AS year
                                                  FROM course c
                                                  LEFT JOIN takes r ON c.course_id = r.course_id
-                                                 WHERE r.ID = $1 AND r.semester = 'Spring' AND r.year = '2009';                                           
+                                                 WHERE r.ID = $1 AND r.semester = 'Spring' AND r.year = '2010';                                           
                                                  `, [id]);                                        
 
         const data = {
@@ -92,13 +92,13 @@ app.post("/instructor", async (req, res) => {
         const course_query = await pool.query(`
                                                 SELECT course_id, semester, year
                                                 FROM teaches
-                                                WHERE teaches.ID = $1 and semester <> 'Spring' and year <> '2009'
+                                                WHERE teaches.ID = $1 and semester <> 'Spring' and year <> '2010'
                                                 ORDER BY year DESC, semester DESC;
                                                 `, [id]);
         
         const current_course = await pool.query(`SELECT course_id, semester, year
                                                 FROM teaches
-                                                WHERE teaches.ID = $1 and semester = 'Spring' and year = '2009'
+                                                WHERE teaches.ID = $1 and semester = 'Spring' and year = '2010'
                                                 ORDER BY course_id;`, [id]);                                        
 
         const data = {
@@ -123,7 +123,7 @@ app.post("/instructor", async (req, res) => {
 app.post("/course", async (req, res) => {
 
     try{
-        const { id } = req.body;
+        const { id} = req.body;
         console.log(id);
         // const course_query = await pool.query(`SELECT course.course_id as course_id, title, building, credits, prereq_id, T.id as instructor_id
         //                                         FROM course
@@ -177,8 +177,8 @@ app.post("/course", async (req, res) => {
 app.post("/registration", async (req, res) => {
 
     try{
-        const { id } = req.body;
-        console.log(id);
+        const {} = req.body;
+        //console.log(id);
         // const course_query = await pool.query(`SELECT course.course_id as course_id, title, building, credits, prereq_id, T.id as instructor_id
         //                                         FROM course
         //                                         LEFT JOIN prereq
@@ -189,10 +189,9 @@ app.post("/registration", async (req, res) => {
         //                                         AND C.sec_id = T.sec_id
         //                                         AND C.semester = T.semester
         //                                         AND C.year = T.year;`, [id]);                                      
-
-        const reg_query = await pool.query(`SELECT course.course_id as course_id, title,  credits, sec_id
-                                                FROM section,course  where 
-                                                section.course_id=course.course_id`); 
+//course_id, title,  credits, sec_id
+        const reg_query = await pool.query(`select  (ROW_NUMBER() OVER() -1 ) as id, course.course_id, title,sec_id,credits from course,section where section.course_id=course.course_id;
+        `); 
         
 
         // This part of code takes multiple instructor teaching the same course into consideration
@@ -207,6 +206,7 @@ app.post("/registration", async (req, res) => {
         console.log(reg_query)
         
         const data = {
+            id:reg_query.rows[0]['id'],
             course_id: reg_query.rows[0]['course_id'],
             title: reg_query.rows[0]['title'],
             //building: course_query.rows[0]['building'],
@@ -235,7 +235,7 @@ app.post("/running", async (req, res) => {
         console.log(id);
         const dept_query = await pool.query(`SELECT DISTINCT dept_name
                                                 FROM course natural JOIN section
-                                                WHERE semester='Spring' and year='2009'`);                                      
+                                                WHERE semester='Spring' and year='2010'`);                                      
         
 
         console.log(dept_query.rows);
@@ -255,7 +255,7 @@ app.post("/deptName", async (req, res) => {
         console.log( dept_name );
         const course_query = await pool.query(`SELECT course_id , title
                                             FROM course natural JOIN section
-                                            WHERE semester='Spring' and year='2009' and dept_name = $1;`, [dept_name]);                                      
+                                            WHERE semester='Spring' and year='2010' and dept_name = $1;`, [dept_name]);                                      
         
 
         console.log(course_query.rows)
@@ -267,9 +267,3 @@ app.post("/deptName", async (req, res) => {
      }
 
 });
-
-
-
-app.listen(5000, () => {
-    console.log("server has started on port 5000")
-})

@@ -7,19 +7,19 @@ const Navbar = () => {
   return (
     <nav className='navbar navbar-light bg-light'>
       <div className='container'>
-        <div>
+        {/* <div>
           <NavLink to='/'>
             <span className='navbar-brand mb-0 h1'>Home</span>
           </NavLink>
-        </div>
+        </div> */}
 
-        {isAuth ? (
+        {/* {isAuth ? ( */}
           <div>
             <NavLink to='/home' className='mx-3'>
               <span>Home</span>
             </NavLink>
           </div>
-        ) : (
+        {/* ) : ( */}
           <div>
             <NavLink to='/login'>
               <span>Login</span>
@@ -28,8 +28,15 @@ const Navbar = () => {
             <NavLink to='/register' className='mx-3'>
               <span>Register</span>
             </NavLink>
+            <NavLink to='/instructor'>
+              <span>Instructor</span>
+            </NavLink>
+            <NavLink to='/course'>
+              <span>Course</span>
+            </NavLink>
           </div>
-        )}
+        {/* ) */}
+        {/* } */}
       </div>
     </nav>
   )
