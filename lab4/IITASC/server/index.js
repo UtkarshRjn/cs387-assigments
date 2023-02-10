@@ -56,10 +56,10 @@ app.post("/home", async (req, res) => {
                                                 ORDER BY year DESC, semester DESC;
                                                 `, [id]);
         
-        const current_course = await pool.query(`SELECT c.course_id, 'Spring' AS semester, '2022' AS year
+        const current_course = await pool.query(`SELECT c.course_id, 'Spring' AS semester, '2010' AS year
                                                  FROM course c
                                                  LEFT JOIN takes r ON c.course_id = r.course_id
-                                                 WHERE r.ID = $1 AND r.semester = 'Spring' AND r.year = '2022';                                           
+                                                 WHERE r.ID = $1 AND r.semester = 'Spring' AND r.year = '2009';                                           
                                                  `, [id]);                                        
 
         const data = {
@@ -92,13 +92,13 @@ app.post("/instructor", async (req, res) => {
         const course_query = await pool.query(`
                                                 SELECT course_id, semester, year
                                                 FROM teaches
-                                                WHERE teaches.ID = $1 and semester <> 'Spring' and year <> '2022'
+                                                WHERE teaches.ID = $1 and semester <> 'Spring' and year <> '2009'
                                                 ORDER BY year DESC, semester DESC;
                                                 `, [id]);
         
         const current_course = await pool.query(`SELECT course_id, semester, year
                                                 FROM teaches
-                                                WHERE teaches.ID = $1 and semester = 'Spring' and year = '2022'
+                                                WHERE teaches.ID = $1 and semester = 'Spring' and year = '2009'
                                                 ORDER BY course_id;`, [id]);                                        
 
         const data = {
@@ -161,6 +161,59 @@ app.post("/course", async (req, res) => {
             credits: course_query.rows[0]['credits'],
             prereq_id: course_query.rows[0]['prereq_id'],
             instructors: instructors,
+        }
+
+ 
+        // console.log(student_query.rows[0]);
+        console.log(data);
+        res.send(data);
+ 
+     }catch (err){
+         console.error(err.message);
+     }
+
+});
+
+app.post("/registration", async (req, res) => {
+
+    try{
+        const { id } = req.body;
+        console.log(id);
+        // const course_query = await pool.query(`SELECT course.course_id as course_id, title, building, credits, prereq_id, T.id as instructor_id
+        //                                         FROM course
+        //                                         LEFT JOIN prereq
+        //                                         ON course.course_id = prereq.course_id
+        //                                         NATURAL JOIN section AS C , teaches AS T
+        //                                         WHERE C.course_id = $1
+        //                                         AND C.course_id = T.course_id 
+        //                                         AND C.sec_id = T.sec_id
+        //                                         AND C.semester = T.semester
+        //                                         AND C.year = T.year;`, [id]);                                      
+
+        const reg_query = await pool.query(`SELECT course.course_id as course_id, title,  credits, sec_id
+                                                FROM section,course  where 
+                                                section.course_id=course.course_id`); 
+        
+
+        // This part of code takes multiple instructor teaching the same course into consideration
+        // const instructors = [];
+
+        // for (const elem of course_query.rows) {
+        //     const instr = elem['instructor_id'];
+        //     instructors.push(instr);
+        // }
+
+
+        console.log(reg_query)
+        
+        const data = {
+            course_id: reg_query.rows[0]['course_id'],
+            title: reg_query.rows[0]['title'],
+            //building: course_query.rows[0]['building'],
+            credits: reg_query.rows[0]['credits'],
+            section: reg_query.rows[0]['sec_id'],
+            //prereq_id: course_query.rows[0]['prereq_id'],
+            //instructors: instructors,
         }
 
  

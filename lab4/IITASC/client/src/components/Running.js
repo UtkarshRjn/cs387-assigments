@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import Layout from './Layout';
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/running";
 
 const Running = () => {
@@ -23,6 +24,7 @@ const Running = () => {
     const responseDataArray = Object.values(responseData);
 
   return (
+    <Layout>
     <html>
         <head>
             <style>
@@ -51,6 +53,7 @@ const Running = () => {
             </table>
         </body>
     </html>
+    </Layout>
   );
 }
 

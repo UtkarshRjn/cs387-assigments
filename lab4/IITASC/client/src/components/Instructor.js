@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import Layout from './Layout';
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/instructor";
 
 const Instructor = () => {
@@ -24,7 +25,7 @@ const Instructor = () => {
   const curr_coursesArray = responseData.current_courses ? responseData.current_courses : [];
 
   return (
-    <div>
+    <Layout>
       <h1>Welcome to the Instructor {instructor_id} Page</h1>
       <h2>Instructor Name: {responseData.name}</h2>
       <h2>Department: {responseData.dept_name}</h2>
@@ -73,7 +74,7 @@ const Instructor = () => {
                 ))}
             </tbody>
         </table>
-    </div>
+    </Layout>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import Layout from './Layout';
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/deptName";
 
 const DeptName = () => {
@@ -23,6 +24,7 @@ const DeptName = () => {
     const responseDataArray = Object.values(responseData);
 
   return (
+    <Layout>
     <html>
         <head>
             <style>
@@ -53,6 +55,7 @@ const DeptName = () => {
             </table>
         </body>
     </html>
+    </Layout>
   );
 }
 

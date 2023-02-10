@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import Layout from './Layout';
+import Table from "./Table";
+//import {usetable} from 'react-table';
+
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/home";
 
 const Home = () => {
@@ -19,10 +23,10 @@ const Home = () => {
     }, []);
 
   return (
-    <div>
+    <Layout>
       <h1>Welcome to the Home Page</h1>
       {JSON.stringify(responseData)}
-    </div>
+    </Layout>
   );
 }
 
