@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Layout from './Layout';
+import { useParams} from 'react-router-dom';
+import NavBar from './NavBar.js';
+import '../style/Instructor.css';
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/instructor";
 
 const Instructor = () => {
-
   const { instructor_id } = useParams()
   const [responseData, setResponseData] = useState({});
 
@@ -25,13 +25,25 @@ const Instructor = () => {
   const curr_coursesArray = responseData.current_courses ? responseData.current_courses : [];
 
   return (
-    <Layout>
-      <h1>Welcome to the Instructor {instructor_id} Page</h1>
-      <h2>Instructor Name: {responseData.name}</h2>
-      <h2>Department: {responseData.dept_name}</h2>
-      <h3>Courses in current semester:</h3>
-      {/* <h4> Semester: {current_course[0]}</h4> */}
-      <table id="current-course-table">
+    <div className="instructor-page">
+      < NavBar/>
+      <h1 class="header-text">Welcome to the Instructor {instructor_id} Page</h1>
+      <table class="instructor-info">
+        <tr>
+          <th>Instructor Id:</th>
+          <td>{instructor_id}</td>
+        </tr>
+        <tr>
+          <th>Instructor Name:</th>
+          <td>{responseData.name}</td>
+        </tr>
+        <tr>
+          <th>Department:</th>
+          <td>{responseData.dept_name}</td>
+        </tr>
+      </table>
+      <h3 class="header-text">Courses in Current Semester:</h3>
+      <table id="current-course-table" className="table">
             <thead>
                 <tr>
                     <th>S.No.</th>
@@ -50,9 +62,8 @@ const Instructor = () => {
             </tbody>
         </table>
 
-      <h3>Courses in previous semesters:</h3>
-      {/* <h4> Semester: {curr_coursesArray[0]['semester']}         Year: {curr_coursesArray[0]['year']}</h4> */}
-      <table id="current-course-table">
+    <h3 class="header-text">Courses in Previous Semesters:</h3>
+    <table id="previous-course-table" className="table">
             <thead>
                 <tr>
                     <th>S.No.</th>
@@ -74,7 +85,8 @@ const Instructor = () => {
                 ))}
             </tbody>
         </table>
-    </Layout>
+    </div>
+
   );
 }
 

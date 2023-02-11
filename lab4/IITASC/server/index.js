@@ -20,6 +20,7 @@ app.use(express.json());
 
 app.post("/login", async (req, res) => {
     console.log(req.sessionID);
+    
     try{
        const { id , pwd } = req.body;
        const password_query = await pool.query("SELECT hashed_password FROM user_password WHERE id = $1", [id]);
@@ -28,6 +29,7 @@ app.post("/login", async (req, res) => {
        }
        
        const password = password_query.rows[0]['hashed_password'];
+       console.log(password);
         
        if(!bcrypt.compareSync(pwd, password)){
          return res.status(401).json({ message: "Login failed." });
@@ -47,8 +49,9 @@ app.post("/home", async (req, res) => {
 
     try{
         const { id } = req.body;
+        console.log(id);
         const student_query = await pool.query("SELECT * FROM student WHERE id = $1", [id]);
-        
+        console.log(student_query.rows);
         const course_query = await pool.query(`
                                                 SELECT course_id, semester, year
                                                 FROM takes
@@ -61,7 +64,7 @@ app.post("/home", async (req, res) => {
                                                  LEFT JOIN takes r ON c.course_id = r.course_id
                                                  WHERE r.ID = $1 AND r.semester = 'Spring' AND r.year = '2010';                                           
                                                  `, [id]);                                        
-
+        
         const data = {
             id: student_query.rows[0]['id'],
             name: student_query.rows[0]['name'],
@@ -201,20 +204,8 @@ app.post("/registration", async (req, res) => {
         //     const instr = elem['instructor_id'];
         //     instructors.push(instr);
         // }
-
-
-        console.log(reg_query)
         
-        const data = {
-            id:reg_query.rows[0]['id'],
-            course_id: reg_query.rows[0]['course_id'],
-            title: reg_query.rows[0]['title'],
-            //building: course_query.rows[0]['building'],
-            credits: reg_query.rows[0]['credits'],
-            section: reg_query.rows[0]['sec_id'],
-            //prereq_id: course_query.rows[0]['prereq_id'],
-            //instructors: instructors,
-        }
+        const data = reg_query.rows
 
  
         // console.log(student_query.rows[0]);
@@ -266,4 +257,8 @@ app.post("/deptName", async (req, res) => {
          console.error(err.message);
      }
 
+});
+
+app.listen(5000, () => {
+    console.log("server has started on port 5000")
 });

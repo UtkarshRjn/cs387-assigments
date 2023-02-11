@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
+import '../style/Login.css'
 import { useNavigate } from "react-router-dom";
-import Layout from './Layout';
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/login";
 
 const Login = () => {
@@ -15,6 +15,7 @@ const Login = () => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
+        //const body = { id: id };
         userRef.current.focus();
     }, [])
 
@@ -33,6 +34,7 @@ const Login = () => {
             });
       
             if (!response.ok) {
+                //setError("Password must contain at least one digit");
                 throw new Error("Login failed.");
             }
     
@@ -47,12 +49,12 @@ const Login = () => {
     }
 
     return (
-        <Layout>  
-            <section>
+        <>  
+            <section className="container">
                 <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
                 <h1>Sign In</h1>
-                <form onSubmit={handleSubmit}>
-                    <label htmlFor="student id" className='form-label'>Student Id:</label>
+                <form className="form" onSubmit={handleSubmit}>
+                    <label htmlFor="student id">Student Id:</label>
                     <input
                         type="text"
                         id="student id"
@@ -63,7 +65,7 @@ const Login = () => {
                         required
                     />
 
-                    <label htmlFor="password" className='form-label'>Password:</label>
+                    <label htmlFor="password">Password:</label>
                     <input
                         type="password"
                         id="password"
@@ -71,16 +73,13 @@ const Login = () => {
                         value={pwd}
                         required
                     />
-                    
-                    <button type='submit' className='btn btn-primary'>
-                     Sign In
-                    </button>
+                    {/* {error && <div style={{ color: "red" }}>{error}</div>} */}
+                    <button>Sign In</button>
                 </form>
             </section>
-        </Layout>
+        </>
+
     )
 }
 
 export default Login
-//<button>Sign In</button>
-//<div style={{ color: 'red', margin: '10px 0' }}>{error}</div>

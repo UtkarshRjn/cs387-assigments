@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Layout from './Layout';
+import NavBar from './NavBar.js';
 const endpoint = process.env.REACT_APP_API_URL || "http://localhost:5000/deptName";
 
 const DeptName = () => {
@@ -8,7 +8,6 @@ const DeptName = () => {
     const { dept_name } = useParams()
 
     useEffect(() => {
-
         const body = { dept_name: dept_name };
 
         fetch(endpoint, {
@@ -24,38 +23,30 @@ const DeptName = () => {
     const responseDataArray = Object.values(responseData);
 
   return (
-    <Layout>
-    <html>
-        <head>
-            <style>
+    <div class='dept-running-course-page'>
+        < NavBar/>
+        <h1>Welcome to the Running Course Page of { dept_name } Department</h1>
+        <table id="departments-table">
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Course Id</th>
+                    <th>Course Title</th>
+                </tr>
+            </thead>
 
-            </style>
-        </head>
-        <body>
-            <h1>Welcome to the Running Course Page of { dept_name } Department</h1>
-            <table id="departments-table">
-                <thead>
-                    <tr>
-                        <th>S.No.</th>
-                        <th>Course Id</th>
-                        <th>Course Title</th>
+            <tbody>
+                {
+                responseDataArray.map((item, index) => (
+                    <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td><a href={`/course/${item.course_id}`}>{item.course_id}</a></td>
+                        <td>{item.title}</td>
                     </tr>
-                </thead>
-
-                <tbody>
-                    {
-                    responseDataArray.map((item, index) => (
-                        <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td><a href={`/course/${item.course_id}`}>{item.course_id}</a></td>
-                            <td>{item.title}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </body>
-    </html>
-    </Layout>
+                ))}
+            </tbody>
+        </table>
+    </div>
   );
 }
 
