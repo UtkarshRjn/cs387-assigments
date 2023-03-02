@@ -1,0 +1,50 @@
+.instructor-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 130vh;
+}
+    
+
+.instructor-info {
+margin-bottom: 40px;
+border-collapse: collapse;
+width: 80%;
+}
+
+.instructor-info th {
+    background-color: rgb(163, 124, 107);
+    padding: 8px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.instructor-info td {
+background-color: #ddd;
+padding: 8px;
+text-align: left;
+}
+
+.table {
+margin: 20px auto;
+border-collapse: collapse;
+width: 80%;
+}
+
+.header-text {
+margin-bottom: 20px;
+font-size: 24px;
+font-weight: bold;
+}
+    
+
+.table th,
+.table td {
+border: 1px solid #ddd;
+padding: 8px;
+text-align: left;
+}
+
+.table th {
+background-color: #f2f2f2;
+}

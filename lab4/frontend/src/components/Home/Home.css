@@ -1,0 +1,94 @@
+.table-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 210vh;
+    top: 0;
+}
+
+.header-text {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.student-info {
+    width: 90%;
+    border-collapse: collapse;
+}
+
+.student-info th,
+.student-info td {
+    border: 1px solid rgb(94, 62, 49);
+    padding: 8px;
+    text-align: left;
+}
+
+.student-info th {
+    background-color: #ddd;
+    font-weight: bold;
+}
+
+
+.table {
+    width: 100%;
+    overflow-y: scroll;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.student-info th {
+    background-color: rgb(163, 124, 107);
+    padding: 8px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.student-info td {
+    background-color: #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.table th,
+.table td {
+    background-color: #ddd;
+    border: 1px solid rgb(94, 62, 49);
+    padding: 8px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    border: 1px solid rgb(94, 62, 49);
+}
+
+
+.myButton {
+    background-color: rgb(94, 62, 49);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease-in-out;
+  }
+  
+
+.myButton:hover {
+transform: translateY(-2px);
+box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.myButton:active {
+transform: translateY(2px);
+box-shadow: none;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: rgb(94, 62, 49);
+}
