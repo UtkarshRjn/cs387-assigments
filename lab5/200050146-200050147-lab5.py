@@ -28,6 +28,10 @@ def clean_and_tokenize(line):
 
 lines = spark.read.text(in_path, wholetext=True).withColumn("words", udf(clean_and_tokenize, ArrayType(StringType()))("value")).select("words")
 
+print(lines)
+
+print(lines)
+
 def ngram_next_tuple(words):
     return [(words[i:i+m], words[i+m]) for m in range(1, k+1) for i in range(len(words)-m)]
 

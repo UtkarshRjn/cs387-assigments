@@ -107,7 +107,7 @@ def main(args):
     if(args.show_tables):
         cursor.execute("""
             SELECT tablename FROM pg_catalog.pg_tables
-            WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'
+            WHERE schemaname = 'public'
             ORDER BY tablename;
         """)
         table_names = [table[0] for table in cursor.fetchall()]
@@ -149,8 +149,7 @@ def main(args):
                 graph[node1].append(node2)
         sorted=topological_sort(graph,table_names)
         for table_names in sorted:
-            show_table(table_names,cursor)
-            
+            show_table(table_names,cursor)   
 
     
     if(args.testing):
